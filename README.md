@@ -114,6 +114,10 @@ En esta fase se construyeron modelos de machine learning para predecir variables
    - **Construcción de Equipo**: arma un equipo de 11 jugadores maximizando el rating combinado dentro de un presupuesto, comparando un enfoque **Greedy** (secuencial, con look-ahead de presupuesto) contra un enfoque de **Programación Lineal** (linprog), el cual obtuvo un equipo de mayor calidad (950 vs 881 puntos de rating) y menor costo.
    - **Vender o No**: evalúa si conviene vender a un jugador comparando su valor por rating, salario y brecha de potencial contra el mercado de jugadores similares (mismo rango de overall y edad).
    - **Recomendación de contratación**: identifica, para cada posición (defensor, mediocampista, delantero), los jugadores con mejor relación overall/valor de mercado (eficiencia), filtrando por un overall mínimo para garantizar nivel competitivo real.
+  
+### Fase V — Dashboard interactivo (Web: html y css)
+
+> **Nota:** El desarrollo completo de la Fase V se encuentra en un repositorio separado: [github.com/lenokeckler/Proyecto_Fase_V_Web](https://github.com/lenokeckler/Proyecto_Fase_V_Web)
 ---
 
 ## Datos utilizados
