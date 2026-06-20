@@ -10,7 +10,7 @@
 
 ## ¿De qué trata este proyecto?
 
-Este proyecto analiza información de más de **150,000 jugadores de fútbol** registrados en el videojuego FIFA, abarcando **10 temporadas** (de 2015 a 2024). A partir de estos datos públicos — que incluyen valor de mercado, salario, rendimiento, edad, posición y club de cada jugador — se construyó un sistema que permite responder preguntas de negocio como:
+Este proyecto analiza información de **214 805 registros de jugadores de fútbol** en el videojuego FIFA, abarcando **10 temporadas** (de 2015 a 2024). A partir de estos datos públicos — que incluyen valor de mercado, salario, rendimiento, edad, posición y club de cada jugador — se construyó un sistema que permite responder preguntas de negocio como:
 
 - ¿Cuáles son los clubes con jugadores más valiosos cada temporada?
 - ¿Qué ligas y regiones del mundo concentran más valor de mercado?
@@ -31,7 +31,7 @@ Aunque los datos provienen de un videojuego, reflejan estimaciones reales del me
 
 ## ¿Cómo se organizó el trabajo?
 
-El proyecto se desarrolla en **6 fases**: (Por el momento llevamos dos concluidas)
+El proyecto se desarrolla en **5 fases**: 
 
 ### Fase I — Preparación y limpieza de datos
 
@@ -119,7 +119,7 @@ En esta fase se construyeron modelos de machine learning para predecir variables
 ## Datos utilizados
 
 - **Fuente**: datasets públicos de EA Sports FIFA (SoFIFA), temporadas 2015 a 2024.
-- **Volumen**: aproximadamente 150,000+ registros de jugadores a lo largo de 10 temporadas.
+- **Volumen**: 214 805 registros de jugadores a lo largo de 10 temporadas.
 - **Variables principales**: nombre del jugador, edad, nacionalidad, club, liga, posición, valor de mercado (EUR), salario (EUR), y atributos de rendimiento (ritmo, disparo, pase, regate, defensa, físico, entre otros).
 
 ---
