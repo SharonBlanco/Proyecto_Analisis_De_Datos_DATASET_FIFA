@@ -60,6 +60,60 @@ En esta fase se diseñó la estructura analítica y se cargaron los datos en una
    - Existe una fuerte concentración del margen financiero (valor − salario) en un grupo reducido de clubes élite.
 4. **Optimización**: se aplicaron técnicas de indexación en la base de datos para mejorar los tiempos de consulta.
 
+
+### Fase III — Análisis exploratorio de datos (EDA)
+
+En esta fase se realizó un análisis exploratorio exhaustivo del dataset limpio, cubriendo distribuciones individuales, relaciones entre variables, detección de anomalías y rankings agregados de negocio:
+
+1. **Análisis univariante**: se calcularon medidas de tendencia central y dispersión (media, mediana, moda, cuartiles, desviación estándar y sesgo) para las variables clave —edad, overall, potencial, valor de mercado, salario, además de dos variables elegidas por el equipo: *Brecha de Potencial* y *pace*—. Entre los hallazgos:
+   - La edad está sesgada a la derecha: hay muchos más jugadores jóvenes que veteranos.
+   - Valor de mercado y salario muestran una fuerte asimetría positiva (la mayoría gana/vale poco, mientras una minoría alcanza cifras extremas), lo que justificó usar escala logarítmica para su visualización.
+   - La Brecha de Potencial tiene moda en 0 (la mayoría de jugadores ya está cerca de su techo), pero existen jóvenes promesas con un margen de hasta +28 puntos.
+   - A nivel categórico, los mediocampistas y defensas son los grupos de posición más numerosos, el grupo de edad "Prime" domina con el 55% de los registros, y aproximadamente el 77% de los jugadores son diestros.
+
+2. **Análisis bivariante y multivariante**: se construyó una matriz de correlación y se cruzaron variables numéricas con categóricas para identificar relaciones relevantes:
+   - Valor de mercado y salario están altamente correlacionados (r = 0.78), mientras que edad y Brecha de Potencial muestran una correlación inversa fuerte (r = −0.84).
+   - El overall se relaciona con el valor de mercado de forma exponencial: a mayor rating, el valor crece desproporcionadamente.
+   - Los delanteros tienen el valor mediano más alto entre todas las posiciones, y el salario mediano aumenta consistentemente con la edad.
+   - En el cruce multivariante (posición × grupo de edad), la combinación de jugadores ofensivos en su etapa "Prime" alcanza el mayor valor de mercado promedio.
+
+3. **Detección de anomalías**: se aplicaron dos técnicas complementarias:
+   - **Z-score** (umbral |z| > 3) sobre edad y salario, para identificar registros con valores estadísticamente extremos respecto al promedio del dataset.
+   - **Rango Intercuartílico (IQR)** sobre la Brecha de Potencial, para detectar a los jóvenes con mayor margen de crecimiento proyectado.
+   - Adicionalmente, se identificaron casos de negocio relevantes: jugadores con salario alto pero rating bajo (overall < 70), señalando posibles inconsistencias entre compensación y rendimiento.
+
+4. **Análisis global y rankings de negocio**: se generaron rankings agregados sobre todo el dataset para responder preguntas estratégicas:
+   - Top 10 jugadores por potencial máximo histórico.
+   - Top 10 países por valor de mercado total generado.
+   - Clubes con mejor ratio valor/salario (mayor eficiencia financiera).
+   - Top 10 jóvenes (menores de 21 años) con rating superior a 80, identificando talento emergente de élite.
+   - Potencial medio por grupo de edad, confirmando que los jugadores jóvenes concentran el mayor margen de crecimiento proyectado.
+  
+### Fase IV — Análisis predictivo y prescriptivo
+
+En esta fase se construyeron modelos de machine learning para predecir variables de negocio y se diseñaron herramientas prescriptivas para apoyar decisiones reales de scouting, fichajes y gestión de plantilla:
+
+1. **Regresión lineal — Valor de mercado**: se identificaron las 5 variables más correlacionadas con el valor de mercado (en escala logarítmica): overall (0.90), potencial (0.81), salario (0.71), passing (0.58) y dribbling (0.52). Tras un análisis de PCA que reveló alta redundancia entre las variables de rendimiento, el modelo final se entrenó únicamente con **overall y edad**, alcanzando un **R² de 0.89** y un **RMSE de 0.45** en escala logarítmica. La variable salario se excluyó deliberadamente para evitar endogeneidad, dado que valor y salario se determinan de forma simultánea en el mercado futbolístico.
+
+2. **Regresión lineal — Salario**: siguiendo la misma lógica, se entrenó un modelo independiente para predecir el salario usando overall, potencial, passing, dribbling y edad (excluyendo el valor de mercado por la misma razón de endogeneidad). El modelo alcanzó un **R² de 0.58** y un **RMSE de 0.83**, con overall como predictor dominante.
+
+3. **Clasificación — Alto Potencial**: se construyó una variable objetivo binaria (potencial > 85) y se compararon dos algoritmos bajo un fuerte desbalance de clases (apenas 1% de la clase positiva):
+   - **Regresión logística**: accuracy 96%, recall 87%, precisión 17%, F1 0.29. Prioriza detectar la mayor cantidad posible de futuras promesas, a costa de muchos falsos positivos.
+   - **Random Forest**: accuracy 99%, precisión 88%, recall 51%, F1 0.65. Logra un mejor balance general y fue seleccionado como el modelo más adecuado, validado también con un AUC superior (0.987 vs 0.973) en la curva ROC.
+
+4. **Clustering — Tipos de jugador (K-Means + PCA)**: usando edad, potencial, valor y salario (transformados logarítmicamente), se aplicó K-Means con k=4 (determinado por el método del codo y validado con Silhouette Score) para segmentar a los jugadores en cuatro perfiles:
+   - **Jóvenes de bajo potencial**: los más jóvenes, con menor rendimiento y valor.
+   - **Estrellas establecidas**: jugadores en su etapa prime, con los valores más altos en todas las métricas.
+   - **Veteranos consolidados**: mayor edad, potencial ya alcanzado y valor en descenso.
+   - **Talento joven con proyección**: jóvenes con potencial y valor notablemente superiores al primer grupo, las futuras estrellas.
+   
+   Se utilizó PCA para reducir las 4 variables a 2 componentes y visualizar los clusters en un plano, confirmando una separación clara entre los perfiles.
+
+5. **Análisis prescriptivo**: se diseñaron tres herramientas de apoyo a la decisión, replicadas como dashboards interactivos:
+   - **Mercado de Transferencias**: dado un presupuesto, identifica jugadores jóvenes con alto potencial cuyo valor por punto de rating está por debajo de la media de su propio cohorte (los "subvalorados" dentro de su segmento).
+   - **Construcción de Equipo**: arma un equipo de 11 jugadores maximizando el rating combinado dentro de un presupuesto, comparando un enfoque **Greedy** (secuencial, con look-ahead de presupuesto) contra un enfoque de **Programación Lineal** (linprog), el cual obtuvo un equipo de mayor calidad (950 vs 881 puntos de rating) y menor costo.
+   - **Vender o No**: evalúa si conviene vender a un jugador comparando su valor por rating, salario y brecha de potencial contra el mercado de jugadores similares (mismo rango de overall y edad).
+   - **Recomendación de contratación**: identifica, para cada posición (defensor, mediocampista, delantero), los jugadores con mejor relación overall/valor de mercado (eficiencia), filtrando por un overall mínimo para garantizar nivel competitivo real.
 ---
 
 ## Datos utilizados
